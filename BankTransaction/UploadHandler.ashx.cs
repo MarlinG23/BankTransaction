@@ -6,6 +6,7 @@ using System.Web;
 using System.Data.SqlClient;
 using BankTransaction.Models;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace BankTransaction
 {
@@ -60,8 +61,8 @@ namespace BankTransaction
                                     int masterRecordId = Convert.ToInt32(cmd.ExecuteScalar());
 
                                     // Simulate a 10-second delay (for testing cancellation)
-                                    //Thread.Sleep(10000);
-
+                                    //Thread.Sleep(10000); i have commented this out for testing purposes, it takes more than 80secs to run the upload
+                                   
                                     // Now that you have the master record ID, use it when inserting detail records
                                     string insertDetailRecordSql = "INSERT INTO DetailRecords (MasterRecordId, TransactionDate, Amount, Status, EffectiveStatusDate) VALUES (@MasterRecordId, @TransactionDate, @Amount, @Status, @EffectiveStatusDate)";
                                     cmd.CommandText = insertDetailRecordSql;
