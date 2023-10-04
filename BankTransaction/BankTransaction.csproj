@@ -338,6 +338,7 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Detail.cs" />
     <Compile Include="DetailRecord.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -350,6 +351,7 @@
       <DependentUpon>ImportPage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Mapper\ForumMap.cs" />
+    <Compile Include="MasterModel.cs" />
     <Compile Include="MasterRecord.cs" />
     <Compile Include="Models\Forum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,6 +4,7 @@ using System.Data;
 using System.Web.UI.WebControls;
 using BankTransaction.Models;
 using System.Linq;
+using System.Data.Entity.Core;
 
 namespace BankTransaction
 {
@@ -11,32 +12,39 @@ namespace BankTransaction
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Bind Master Grid during page load
             if (!IsPostBack)
             {
+                // Load master data and bind the GridViews
                 BindMasterGrid();
             }
         }
 
         protected void BindMasterGrid()
         {
-            // Get the connection string from web.config
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-            // Specify the full namespace of the ApplicationDbContext class you want to use
             using (var dbContext = new BankTransaction.Models.ApplicationDbContext(connectionString))
             {
-                gvMaster.DataSource = dbContext.MasterRecords.ToList();
-                gvMaster.DataBind();
+                try
+                {
+                    gvMaster.DataSource = dbContext.MasterRecords.ToList();
+                    gvMaster.DataBind();
+                }
+                catch (EntityCommandExecutionException ex)
+                {
+                    Exception innerException = ex.InnerException;
+                    while (innerException != null)
+                    {
+                        innerException = innerException.InnerException;
+                    }
+                }
             }
-
         }
 
         protected void SelectMasterRecord(object sender, EventArgs e)
         {
             int selectedMasterId = int.Parse(gvMaster.SelectedValue.ToString());
 
-            // Get the connection string from web.config
             string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
             using (var dbContext = new BankTransaction.Models.ApplicationDbContext(connectionString))
@@ -46,5 +54,21 @@ namespace BankTransaction
                 gvDetail.DataBind();
             }
         }
+
+        protected string CalculateTimeBreached(DateTime transactionDate, DateTime effectiveStatusDate)
+        {
+            TimeSpan timeDifference = effectiveStatusDate - transactionDate;
+            return (timeDifference.Days > 7) ? "Yes" : "No";
+        }
+
+        // Other helper methods as needed
+
+        // You can also add code to import CSV data and populate the database here
+        // Ensure the data import logic is added when the "View Imports" link is clicked
     }
+
 }
+
+
+    
+

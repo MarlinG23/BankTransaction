@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Data;
 using System.IO;
+using System.Threading; // Add this namespace for Thread.Sleep
 using System.Web;
 using System.Data.SqlClient;
 using BankTransaction.Models;
@@ -46,28 +48,25 @@ namespace BankTransaction
                                 var values = line.Split(',');
 
                                 // Insert data into the MasterRecords table
-                                string insertMasterRecordSql = "INSERT INTO MasterRecords (AccountHolder, BranchCode, AccountNumber, AccountType) VALUES (@AccountHolder, @BranchCode, @AccountNumber, @AccountType)";
+                                string insertMasterRecordSql = "INSERT INTO MasterRecords (AccountHolder, BranchCode, AccountNumber, AccountType) VALUES (@AccountHolder, @BranchCode, @AccountNumber, @AccountType); SELECT SCOPE_IDENTITY()";
                                 using (SqlCommand cmd = new SqlCommand(insertMasterRecordSql, conn))
                                 {
                                     cmd.Parameters.AddWithValue("@AccountHolder", values[1]);
                                     cmd.Parameters.AddWithValue("@BranchCode", values[2]);
                                     cmd.Parameters.AddWithValue("@AccountNumber", values[3]);
                                     cmd.Parameters.AddWithValue("@AccountType", values[4]);
-                                    cmd.ExecuteNonQuery();
-                                }
 
-                                // Assuming you have the master record ID available (replace with the correct value)
-                                int masterRecordId = GetMasterRecordId(); // Replace this with your logic to obtain the ID
+                                    // Execute the insert and retrieve the newly inserted ID
+                                    int masterRecordId = Convert.ToInt32(cmd.ExecuteScalar());
 
-                                // Parse the date with a specific format
-                                DateTime transactionDate;
-                                //if (DateTime.TryParseExact(values[4], "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out transactionDate))
-                                //{
-                                // Insert data into the DetailRecords table
-                                string insertDetailRecordSql = "INSERT INTO DetailRecords (TransactionDate, Amount, Status, EffectiveStatusDate) VALUES (@TransactionDate, @Amount, @Status, @EffectiveStatusDate)";
-                                using (SqlCommand cmd = new SqlCommand(insertDetailRecordSql, conn))
-                                {
-                                    //cmd.Parameters.AddWithValue("@MasterRecordId", values[6]);
+                                    // Simulate a 10-second delay (for testing cancellation)
+                                    //Thread.Sleep(10000);
+
+                                    // Now that you have the master record ID, use it when inserting detail records
+                                    string insertDetailRecordSql = "INSERT INTO DetailRecords (MasterRecordId, TransactionDate, Amount, Status, EffectiveStatusDate) VALUES (@MasterRecordId, @TransactionDate, @Amount, @Status, @EffectiveStatusDate)";
+                                    cmd.CommandText = insertDetailRecordSql;
+                                    cmd.Parameters.Clear(); // Clear parameters from the previous command
+                                    cmd.Parameters.AddWithValue("@MasterRecordId", masterRecordId);
                                     cmd.Parameters.AddWithValue("@TransactionDate", values[5]);
                                     cmd.Parameters.AddWithValue("@Amount", values[6]);
                                     cmd.Parameters.AddWithValue("@Status", values[7]);
@@ -75,11 +74,6 @@ namespace BankTransaction
                                     cmd.ExecuteNonQuery();
                                 }
                             }
-                            //    else
-                            //{
-                            //    // Handle the case where the date format is not as expected
-                            //    // You can log an error or take appropriate action here
-                            //}
                         }
                         conn.Close();
                     }
@@ -102,15 +96,6 @@ namespace BankTransaction
         public bool IsReusable
         {
             get { return false; }
-        }
-
-        // Implement your logic to obtain the master record ID here
-        private int GetMasterRecordId()
-        {
-            // Replace this with your logic to obtain the master record ID
-            // For example, you might query the database to retrieve the ID
-            // or use some other method depending on your application's structure.
-            return 1; // Replace with the actual ID
         }
     }
 }

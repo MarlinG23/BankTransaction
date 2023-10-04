@@ -37,7 +37,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <a href="#" onclick="loadContent('ViewImportsPage.aspx'); return false;">View Imports</a>
+                            <a href="ViewImports.aspx" target="content">View Imports</a>
                         </td>
                     </tr>
                     <tr>
@@ -59,6 +59,9 @@
                 </div>
             </div>
         </div>
+    </main>
+
+
 
         <!-- Default.aspx -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
